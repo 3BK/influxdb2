@@ -80,7 +80,7 @@ impl Client {
 
         let body = Body::wrap_stream(body);
 
-        Ok(self.write_line_protocol_with_precision(&self.org, bucket, body, timestamp_precision).await?)
+        self.write_line_protocol_with_precision(&self.org, bucket, body, timestamp_precision).await
     }
 }
 
@@ -100,10 +100,10 @@ pub enum TimestampPrecision{
 impl TimestampPrecision{
     fn api_short_name(&self) -> &'static str{
         match self {
-            TimestampPrecision::Seconds => "s",
-            TimestampPrecision::Milliseconds => "ms",
-            TimestampPrecision::Microseconds => "us",
-            TimestampPrecision::Nanoseconds => "ns"
+            Self::Seconds => "s",
+            Self::Milliseconds => "ms",
+            Self::Microseconds => "us",
+            Self::Nanoseconds => "ns"
         }
     }
 }
