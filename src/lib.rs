@@ -200,7 +200,7 @@ impl Client {
         };
 
         let url: String = url.into();
-        let base = Url::parse(&url).expect(&format!("Invalid url was provided: {}", &url));
+        let base = Url::parse(&url).unwrap_or_else(|_| panic!("Invalid url was provided: {}", &url));
 
         let root_ca = root_ca_cert_path_pem.into();
         let cert = std::fs::read(root_ca).unwrap();
@@ -214,7 +214,7 @@ impl Client {
             base,
             org: org.into(),
             auth_header,
-            reqwest :  client.unwrap().into()
+            reqwest :  client.unwrap()
         }
     }
 
