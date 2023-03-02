@@ -20,9 +20,11 @@ pub enum Value {
     TimeRFC(DateTime<FixedOffset>),
 }
 
+//fixme https://rust-lang.github.io/rust-clippy/master/index.html#recursive_format_impl
 impl fmt::Display for Value {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self)
+
     }
 }
 
