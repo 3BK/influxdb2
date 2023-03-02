@@ -33,7 +33,7 @@ pub fn impl_writeable(tokens: TokenStream) -> TokenStream {
 
     let measure = match measure_value {
         Some(v) => format_ident!("{}", v).to_string(),
-        None => ident.clone().to_string(),
+        None => ident.to_string(),
     };
 
     let fields: Vec<FieldWritable> = match input.fields {
@@ -41,10 +41,7 @@ pub fn impl_writeable(tokens: TokenStream) -> TokenStream {
             .named
             .into_iter()
             .filter_map(FieldWritable::from)
-            .filter(|field| match field.field_type {
-                FieldType::Ignore => false,
-                _ => true,
-            })
+            .filter(|field| !matches!(field.field_type, FieldType::Ignore))
             .collect(),
         _ => panic!("a struct without named fields is not supported"),
     };
@@ -96,13 +93,13 @@ pub fn impl_writeable(tokens: TokenStream) -> TokenStream {
         })
         .collect();
     
-    if tag_writes.len() < 1 {
+    if tag_writes.is_empty() {
         panic!("You have to specify at least one #[tag] field.")
     }
-    if timestamp_writes.len() != 1 {
+    if timestamp_writes.is_empty() {
         panic!("You have to specify at exact one #[timestamp] field.")
     }
-    if fields_writes.len() < 1 {
+    if fields_writes.is_empty() {
         panic!("You have to specify at least one #[field] field.")
     }
 
@@ -204,7 +201,7 @@ impl FieldWritable {
         Some(Self {
             field_type: field_type.unwrap_or(FieldType::Field),
             kind: value.ty,
-            ident: ident,
+            ident
         })
     }
 }
