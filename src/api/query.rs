@@ -8,6 +8,7 @@ use std::str::FromStr;
 use crate::{Client, Http, RequestError, ReqwestProcessing, Serializing};
 
 use base64::decode;
+//use base64::Engine;
 use chrono::DateTime;
 use csv::StringRecord;
 use fallible_iterator::FallibleIterator;
