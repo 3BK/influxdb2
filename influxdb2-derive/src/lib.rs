@@ -55,8 +55,7 @@ pub fn from_data_point(input: TokenStream) -> TokenStream {
         .iter()
         .map(|field| {
             let t = field.ty.clone();
-            let s = quote! {#t}.to_string();
-            s
+            quote! {#t}.to_string()
         })
         .collect::<Vec<String>>();
 

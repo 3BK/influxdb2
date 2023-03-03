@@ -7,8 +7,12 @@ use std::str::FromStr;
 
 use crate::{Client, Http, RequestError, ReqwestProcessing, Serializing};
 
-use base64::decode;
+//use base64::decode;
 //use base64::Engine;
+//use base64::engine::Engine as _;
+//use base64::engine::general_purpose::STANDARD as BASE64;
+use base64::{Engine as _, engine::general_purpose};
+
 use chrono::DateTime;
 use csv::StringRecord;
 use fallible_iterator::FallibleIterator;
@@ -18,6 +22,8 @@ use influxdb2_structmap::value::Value;
 use ordered_float::OrderedFloat;
 use reqwest::{Method, StatusCode};
 use snafu::ResultExt;
+
+
 
 use crate::models::{
     AnalyzeQueryResponse, AstResponse, FluxSuggestion, FluxSuggestions, LanguageRequest, Query,
@@ -392,6 +398,7 @@ struct QueryResult {
     items: Vec<GenericMap>,
 }
 
+// todo: fixme
 impl QueryResult {
     fn new<'a>(qtr: QueryTableResult<'a>) -> Result<Self, RequestError> {
         // Parse items
@@ -485,7 +492,8 @@ fn parse_value(s: &str, t: DataType, name: &str) -> Result<Value, RequestError> 
             }
         }
         DataType::Base64Binary => {
-            let b = decode(s).unwrap();
+
+            let b = general_purpose::STANDARD_NO_PAD.decode(s).unwrap();
             Ok(Value::Base64Binary(b))
         }
         DataType::TimeRFC => {

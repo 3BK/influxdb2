@@ -21,7 +21,7 @@ impl Default for StockPrice {
             ticker: "".to_owned(),
             value: 0.0,
             open: 0.0,
-            time: FixedOffset::east(7 * 3600).from_utc_datetime(&now),
+            time: FixedOffset::east_opt(7 * 3600).unwrap().from_utc_datetime(&now),
         }
     }
 }

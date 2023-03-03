@@ -81,8 +81,10 @@ mod tests {
         
         let client = Client::new(&mockito::server_url(), org, token);
         
-        let start = NaiveDate::from_ymd(2020, 1, 1).and_hms(0, 0, 0);
-        let stop = NaiveDate::from_ymd(2021, 1, 1).and_hms(0, 0, 0);
+        let start   = NaiveDate::from_ymd_opt(2020, 1, 1).unwrap();
+        let start   = start.and_hms_opt(0, 0, 0).unwrap();
+        let stop    = NaiveDate::from_ymd_opt(2021, 1, 1).unwrap();
+        let stop    = stop.and_hms_opt(0, 0, 0).unwrap();
         let _result = client.delete(bucket, start, stop, None).await;
         
         mock_server.assert();
