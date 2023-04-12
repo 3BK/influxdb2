@@ -82,16 +82,18 @@
 //!     let bucket = "bucket";
 //!     let client = Client::new(host, org, token);
 //!     
+//!     let mut pb1 =  DataPoint::builder("cpu");
+//!     pb1.tag("host", "server01");
+//!     pb1.field("usage", 0.5);
+//!
+//!     let mut pb2 = DataPoint::builder("cpu");
+//!     pb2.tag("host", "server01");
+//!     pb2.tag("region", "us-west");
+//!     pb2.field("usage", 0.87);
+//!
 //!     let points = vec![
-//!         DataPoint::builder("cpu")
-//!             .tag("host", "server01")
-//!             .field("usage", 0.5)
-//!             .build()?,
-//!         DataPoint::builder("cpu")
-//!             .tag("host", "server01")
-//!             .tag("region", "us-west")
-//!             .field("usage", 0.87)
-//!             .build()?,
+//!         pb1.build()?,
+//!        pb2.build()?,
 //!     ];
 //!                                                             
 //!     client.write(bucket, stream::iter(points)).await?;

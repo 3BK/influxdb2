@@ -33,6 +33,7 @@ impl Value {
     /// container type when converting to and from a struct.
     pub fn new<T: Any>(value: T) -> Value {
         let any_val = &value as &dyn Any;
+
         if let Some(val) = any_val.downcast_ref::<f64>() {
             Value::Double(OrderedFloat::from(*val))
         } else if let Some(val) = any_val.downcast_ref::<bool>() {

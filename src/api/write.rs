@@ -136,19 +136,18 @@ cpu,host=server01,region=us-west usage=0.87
         .create();
 
         let client = Client::new(&mockito::server_url(), org, token);
+        let mut pb1 = DataPoint::builder("cpu");
+        pb1.tag("host", "server01"); 
+        pb1.field("usage", 0.5);
+
+        let mut pb2 = DataPoint::builder("cpu");
+        pb2.tag("host", "server01");
+        pb2.tag("region", "us-west");
+        pb2.field("usage", 0.87);
 
         let points = vec![
-            DataPoint::builder("cpu")
-                .tag("host", "server01")
-                .field("usage", 0.5)
-                .build()
-                .unwrap(),
-            DataPoint::builder("cpu")
-                .tag("host", "server01")
-                .tag("region", "us-west")
-                .field("usage", 0.87)
-                .build()
-                .unwrap(),
+            pb1.build().unwrap(),
+            pb2.build().unwrap(),
         ];
 
         // If the requests made are incorrect, Mockito returns status 501 and `write`
@@ -181,14 +180,13 @@ cpu,host=server01 usage=0.5 1671095854
             .create();
 
         let client = Client::new(&mockito::server_url(), org, token);
+        let mut pb1 = DataPoint::builder("cpu");
+        pb1.tag("host", "server01");
+        pb1.field("usage", 0.5);
+        pb1.timestamp(1671095854);
 
         let points = vec![
-            DataPoint::builder("cpu")
-                .tag("host", "server01")
-                .field("usage", 0.5)
-                .timestamp(1671095854)
-                .build()
-                .unwrap()
+            pb1.build().unwrap()
         ];
 
         // If the requests made are incorrect, Mockito returns status 501 and `write`

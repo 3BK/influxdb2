@@ -37,17 +37,18 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 
     println!("HealthCheck: {:#?}", client.health().await?);
+    let mut pb1 = DataPoint::builder("bar");
+    pb1.tag("ticker", "AAPL");
+    pb1.field("value", 123.46);
+
+    let mut pb2 = DataPoint::builder("bar");
+    pb2.tag("ticker", "GOOG");
+    pb2.field("value", 321.09);
+    pb2.field("open", 309.2);
+
     let points: Vec<DataPoint> = vec![ 
-        DataPoint::builder("bar")
-            .tag("ticker", "AAPL")
-            .field("value", 123.46)
-            .field("open", 200.0)
-            .build()?,
-        DataPoint::builder("bar")
-            .tag("ticker", "GOOG")
-            .field("value", 321.09)
-            .field("open", 309.2)
-            .build()?,
+        pb1.build()?,
+        pb2.build()?,
     ];
     client.write(&bucket, stream::iter(points)).await?;
     let qs = format!("from(bucket: \"{}\") 

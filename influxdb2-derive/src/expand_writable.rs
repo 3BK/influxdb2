@@ -11,18 +11,22 @@ pub fn impl_writeable(tokens: TokenStream) -> TokenStream {
     let input = parse_macro_input!(tokens as ItemStruct); // only struct is supported now.
     let ident = input.ident;
     let generics = input.generics;
+
     let measurement = input.attrs.into_iter().find_map(|a| {
         let is_outter = match a.style {
             syn::AttrStyle::Outer => true,
             syn::AttrStyle::Inner(_) => false,
         };
+
         let is_measurement = a.path.is_ident("measurement");
+
         if is_outter && is_measurement {
             Some(a)
         } else {
             None
         }
     });
+
     let measure_value = measurement.and_then(|attr| match attr.parse_meta() {
         Ok(Meta::NameValue(MetaNameValue {
             lit: Lit::Str(lit_str),
@@ -45,6 +49,7 @@ pub fn impl_writeable(tokens: TokenStream) -> TokenStream {
             .collect(),
         _ => panic!("a struct without named fields is not supported"),
     };
+
     let tag_writes: Vec<TokenStream2> = fields
         .iter()
         .filter_map(|f| match f.field_type {
@@ -104,6 +109,7 @@ pub fn impl_writeable(tokens: TokenStream) -> TokenStream {
     }
 
     let mut combined_tag_writes = vec![];
+
     for (index, tag_write) in tag_writes.iter().enumerate() {
         if index > 0 {
             combined_tag_writes.push(quote!(w.write_all(b",")?;));
@@ -112,6 +118,7 @@ pub fn impl_writeable(tokens: TokenStream) -> TokenStream {
     }
     
     let mut combined_fields_writes = vec![];
+
     for (index, fields_write) in fields_writes.iter().enumerate() {
         if index > 0 {
             combined_fields_writes.push(quote!(w.write_all(b",")?;));

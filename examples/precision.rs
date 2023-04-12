@@ -11,13 +11,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let token = std::env::var("INFLUXDB_TOKEN").unwrap();
     let bucket = "bucket";
     let client = Client::new(host, org, token);
+    let mut pb1 = DataPoint::builder("cpu");
+    pb1.tag("host", "server01");
+    pb1.field("usage", 0.5);
+    pb1.timestamp(1671095854);
     
     let points = vec![
-        DataPoint::builder("cpu")
-            .tag("host", "server01")
-            .field("usage", 0.5)
-            .timestamp(1671095854)
-            .build()?,
+       pb1.build()?,
     ];
                                                             
     client.write_with_precision(bucket, stream::iter(points), TimestampPrecision::Seconds).await?;

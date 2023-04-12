@@ -32,7 +32,9 @@ pub fn make_tuple_tags(tokens: TokenStream) -> TokenStream {
 
     let mut concate_str: Vec<TokenStream2> = Vec::new();
     let enumerate_generic = generic_idents.iter().enumerate().collect::<Vec<_>>();
+
     let mut chuncks = enumerate_generic.as_slice().chunks(2).peekable();
+
     while let Some(c) = chuncks.next() {
         let first_index: syn::Index = c[0].0.into();
         let second_index: syn::Index = c[1].0.into();
@@ -44,10 +46,12 @@ pub fn make_tuple_tags(tokens: TokenStream) -> TokenStream {
             concate_str.push(quote!(res.push_str(",")))
         }
     }
+
     let generic_annotate = generic_idents
         .iter()
         .map(|i| quote!(#i: KeyWritable))
         .collect::<Vec<_>>();
+
     let output = quote! {
         impl <#(#generic_annotate),*> TagsWritable for (#(#generic_idents),*){
             fn encode_tags(&self) -> String {
@@ -88,6 +92,7 @@ pub fn make_tuple_fields(tokens: TokenStream) -> TokenStream {
             quote!(#first: KeyWritable, #second: ValueWritable)
         })
         .collect::<Vec<_>>();
+
     let output = quote! {
         impl <#(#generic_annotate),*> FieldsWritable for (#(#generic_idents),*){
             fn encode_fields(&self) -> String {

@@ -21,7 +21,7 @@ pub enum DataPointError {
 /// Incrementally constructs a `DataPoint`.
 ///
 /// Create this via `DataPoint::builder`.
-#[derive(Debug)]
+#[derive(Clone, Default, Debug)]
 pub struct DataPointBuilder {
     measurement: String,
     // Keeping the tags sorted improves performance on the server side
@@ -31,7 +31,9 @@ pub struct DataPointBuilder {
 }
 
 impl DataPointBuilder {
-    fn new(measurement: impl Into<String>) -> Self {
+
+    /// Create a datapoint builder
+    pub fn new(measurement: impl Into<String>) -> Self {
         Self {
             measurement: measurement.into(),
             tags: Default::default(),
@@ -40,17 +42,26 @@ impl DataPointBuilder {
         }
     }
 
+    /// Sets a meeasurement, replacing any existing measurement.
+    pub fn measurement(&mut self, measurement: impl Into<String>) -> &mut Self {
+        self.measurement = measurement.into();
+        self
+    }
+
+
     /// Sets a tag, replacing any existing tag of the same name.
-    pub fn tag(mut self, name: impl Into<String>, value: impl Into<String>) -> Self {
+    pub fn tag(&mut self, name: impl Into<String>, value: impl Into<String>) -> &mut Self {
         self.tags.insert(name.into(), value.into());
         self
     }
 
+
     /// Sets a field, replacing any existing field of the same name.
-    pub fn field(mut self, name: impl Into<String>, value: impl Into<FieldValue>) -> Self {
+    pub fn field(&mut self, name: impl Into<String>, value: impl Into<FieldValue>) -> &mut Self {
         self.fields.insert(name.into(), value.into());
         self
     }
+
 
     /// Sets the timestamp, replacing any existing timestamp.
     ///
@@ -58,7 +69,7 @@ impl DataPointBuilder {
     /// UNIX epoch.
     ///
     /// When using write_with_precision, the value is interpreted according to the configured precision.
-    pub fn timestamp(mut self, value: i64) -> Self {
+    pub fn timestamp(&mut self, value: i64) -> &mut Self {
         self.timestamp = Some(value);
         self
     }
@@ -93,6 +104,7 @@ impl DataPointBuilder {
 // to be `Vec<u8>` instead, the API for creating a `DataPoint` would need some more consideration,
 // and there would need to be more `Write*` trait implementations. Because the `Write*` traits work
 // on a writer of bytes, that part of the design supports non-UTF-8 data now.
+
 #[derive(Clone, Debug)]
 pub struct DataPoint {
     measurement: String,
@@ -108,10 +120,15 @@ impl DataPoint {
     }
 }
 
+//todo document this
+const MEASUREMENT_DELIMITERS: &[char] = &[',', ' '];
+const TAG_KEY_DELIMITERS: &[char] = &[',', '=', ' '];
+const TAG_VALUE_DELIMITERS: &[char] = TAG_KEY_DELIMITERS;
+const FIELD_KEY_DELIMITERS: &[char] = TAG_KEY_DELIMITERS;
+const FIELD_VALUE_STRING_DELIMITERS: &[char] = &['"'];
+
 impl WriteDataPoint for DataPoint {
-    fn write_data_point_to<W>(&self, mut w: W) -> io::Result<()>
-    where
-        W: io::Write,
+    fn write_data_point_to<W>(&self, mut w: W) -> io::Result<()> where W: io::Write,
     {
         self.measurement.write_measurement_to(&mut w)?;
 
@@ -147,10 +164,13 @@ impl WriteDataPoint for DataPoint {
 pub enum FieldValue {
     /// A true or false value
     Bool(bool),
+
     /// A 64-bit floating point number
     F64(f64),
+
     /// A 64-bit signed integer number
     I64(i64),
+
     /// A string value
     String(String),
 }
@@ -199,6 +219,22 @@ pub trait WriteDataPoint {
     fn write_data_point_to<W>(&self, w: W) -> io::Result<()>
     where
         W: io::Write;
+}
+
+// TODO: document this
+fn escape_and_write_value<W>( value: &str,
+                              escaping_specification: &[char],
+                              mut w: W,) -> io::Result<()> where W: io::Write,
+{
+    let mut last = 0;
+
+    for (idx, delim) in value.match_indices(escaping_specification) {
+        let s = &value[last..idx];
+        write!(w, r#"{}\{}"#, s, delim)?;
+        last = idx + delim.len();
+    }
+
+    w.write_all(value[last..].as_bytes())
 }
 
 // The following are traits rather than free functions so that we can limit
@@ -307,35 +343,13 @@ impl WriteTimestamp for i64 {
     }
 }
 
-const MEASUREMENT_DELIMITERS: &[char] = &[',', ' '];
-const TAG_KEY_DELIMITERS: &[char] = &[',', '=', ' '];
-const TAG_VALUE_DELIMITERS: &[char] = TAG_KEY_DELIMITERS;
-const FIELD_KEY_DELIMITERS: &[char] = TAG_KEY_DELIMITERS;
-const FIELD_VALUE_STRING_DELIMITERS: &[char] = &['"'];
-
-fn escape_and_write_value<W>(
-    value: &str,
-    escaping_specification: &[char],
-    mut w: W,
-) -> io::Result<()>
-where
-    W: io::Write,
-{
-    let mut last = 0;
-
-    for (idx, delim) in value.match_indices(escaping_specification) {
-        let s = &value[last..idx];
-        write!(w, r#"{}\{}"#, s, delim)?;
-        last = idx + delim.len();
-    }
-
-    w.write_all(value[last..].as_bytes())
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
     use std::str;
+
+    // todo document this
+    const ALL_THE_DELIMITERS: &str = r#"alpha,beta=delta gamma"epsilon"#;
 
     fn assert_utf8_strings_eq(left: &[u8], right: &[u8]) {
         assert_eq!(
@@ -349,14 +363,14 @@ mod tests {
 
     #[test]
     fn point_builder_allows_setting_tags_and_fields() {
-        let point = DataPoint::builder("swap")
-            .tag("host", "server01")
-            .tag("name", "disk0")
-            .field("in", 3_i64)
-            .field("out", 4_i64)
-            .timestamp(1)
-            .build()
-            .unwrap();
+        let mut pb = DataPoint::builder("swap");
+            pb.tag("host", "server01");
+            pb.tag("name", "disk0");
+            pb.field("in", 3_i64);
+            pb.field("out", 4_i64);
+            pb.timestamp(1);
+
+         let point = pb.build().unwrap();
 
         assert_utf8_strings_eq(
             &point.data_point_to_vec().unwrap(),
@@ -366,11 +380,10 @@ mod tests {
 
     #[test]
     fn no_tags_or_timestamp() {
-        let point = DataPoint::builder("m0")
-            .field("f0", 1.0)
-            .field("f1", 2_i64)
-            .build()
-            .unwrap();
+        let mut pb= DataPoint::builder("m0");
+        pb.field("f0", 1.0);
+        pb.field("f1", 2_i64);
+        let point = pb.build().unwrap();
 
         assert_utf8_strings_eq(
             &point.data_point_to_vec().unwrap(),
@@ -380,12 +393,11 @@ mod tests {
 
     #[test]
     fn no_timestamp() {
-        let point = DataPoint::builder("m0")
-            .tag("t0", "v0")
-            .tag("t1", "v1")
-            .field("f1", 2_i64)
-            .build()
-            .unwrap();
+        let mut pb = DataPoint::builder("m0");
+        pb.tag("t0", "v0");
+        pb.tag("t1", "v1");
+        pb.field("f1", 2_i64);
+        let point = pb.build().unwrap();
 
         assert_utf8_strings_eq(
             &point.data_point_to_vec().unwrap(),
@@ -399,8 +411,6 @@ mod tests {
 
         assert!(point_result.is_err());
     }
-
-    const ALL_THE_DELIMITERS: &str = r#"alpha,beta=delta gamma"epsilon"#;
 
     #[test]
     fn special_characters_are_escaped_in_measurements() {
