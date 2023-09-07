@@ -48,7 +48,7 @@ mockito = "0.26"
 num-traits = "0.2.15"
 once_cell = { version = "1.17.1", features = ["parking_lot"] }
 parking_lot = "0.12.1"
-tokio = { version = "1.26", features = ["macros", "rt-multi-thread"] }
+tokio = { version = "1.26", features = ["macros", "rt-multi-thread", "net"] }
 test_helpers = { path = "./test_helpers" }
 
 #[workspace]

@@ -21,7 +21,8 @@ pub enum Value {
 }
 
 //fixme https://rust-lang.github.io/rust-clippy/master/index.html#recursive_format_impl
-impl fmt::Display for Value {
+//230906
+#[allow(clippy::recursive_format_impl)] impl fmt::Display for Value {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", self)
 

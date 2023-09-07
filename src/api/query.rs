@@ -400,7 +400,8 @@ struct QueryResult {
 
 // todo: fixme
 impl QueryResult {
-    fn new<'b>(qtr: QueryTableResult<'b>) -> Result<Self, RequestError> {
+    //fn new<'b>(qtr: QueryTableResult<'b>) -> Result<Self, RequestError> {
+    fn new(qtr: QueryTableResult<'_>) -> Result<Self, RequestError> {
         // Parse items
         let mut items = vec![];
         let mut build_table = HashMap::<GenericMap, GenericMap>::new();
