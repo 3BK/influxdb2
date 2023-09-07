@@ -7,7 +7,7 @@ description = "Influxdb 2 client library for rust"
 homepage = "https://github.com/aprimadi/influxdb2"
 repository = "https://github.com/aprimadi/influxdb2"
 license = "MIT"
-edition = "2018"
+edition = "2021"
 
 
 [features]

@@ -4,7 +4,7 @@ description = "Procedural macro library for converting between Rust structs and 
 authors = ["Armin Primadi <aprimadi@gmail.com>", "ex0dus-0x <ex0dus@codemuch.tech>"]
 license = "MIT"
 version = "0.2.0"
-edition = "2018"
+edition = "2021"
 
 [dependencies]
 chrono = "0.4.23"
