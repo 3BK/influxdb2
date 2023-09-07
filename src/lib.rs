@@ -17,7 +17,7 @@
 //! [2api]: https://v2.docs.influxdata.com/v2.0/reference/api/
 //!
 //! This project is a fork from the
-//! https://github.com/influxdata/influxdb_iox/tree/main/influxdb2_client project.
+//! <https://github.com/influxdata/influxdb_iox/tree/main/influxdb2_client> project.
 //! At the time of this writing, the query functionality of the influxdb2 client
 //! from the official repository isn't working. So, I created this client to use
 //! it in my project.
@@ -261,7 +261,7 @@ mod tests {
     }
 
     #[test]
-    /// Reproduction of https://github.com/aprimadi/influxdb2/issues/6
+    /// Reproduction of <https://github.com/aprimadi/influxdb2/issues/6>
     fn url_ignores_double_slashes() {
         let base = "http://influxdb.com/";
         let client = Client::new(base, "some-org", "some-token");

@@ -1,7 +1,7 @@
 //! InfluxDB Writable trait
 //!
 //! Trying to construct the trait used for line protocol
-//! https://docs.influxdata.com/influxdb/v2.6/reference/syntax/line-protocol/#Copyright
+//! <https://docs.influxdata.com/influxdb/v2.6/reference/syntax/line-protocol/#Copyright>
 
 use influxdb2_derive::{impl_tuple_fields, impl_tuple_tags};
 
@@ -64,7 +64,7 @@ impl ValueWritable for &str {
 impl ValueWritable for bool {
     fn encode_value(&self) -> String {
         // bool type in influxdb2
-        // https://docs.influxdata.com/influxdb/v2.6/reference/syntax/line-protocol/#boolean
+        // <https://docs.influxdata.com/influxdb/v2.6/reference/syntax/line-protocol/#boolean>
         if *self {
             "t".to_string()
         } else {
